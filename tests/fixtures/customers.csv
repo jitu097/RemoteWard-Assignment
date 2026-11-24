@@ -1,0 +1,5 @@
+id,name,age,city,balance
+1,Alice,34,London,1200.50
+2,Bob,,Paris,300
+3,Carol,29,,0
+4,Dave,41,Berlin,-50.25

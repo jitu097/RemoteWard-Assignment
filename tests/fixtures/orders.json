@@ -1,0 +1,5 @@
+[
+  { "orderId": 1, "customer": "Alice", "total": 99.5, "coupon": null },
+  { "orderId": 2, "customer": "Bob", "total": 20, "coupon": "SAVE10" },
+  { "orderId": 3, "customer": "", "total": 5.25 }
+]
