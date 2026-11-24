@@ -9,10 +9,11 @@ import { setupEnv } from './helpers.js';
 
 let env;
 let app;
+const pass = (req, res, next) => next();
 
 before(async () => {
   env = await setupEnv();
-  app = createApp(env);
+  app = createApp({ ...env, limiters: { upload: pass, read: pass } });
 });
 after(() => env.close());
 
@@ -45,7 +46,7 @@ test('multipart path: a 12 MiB upload streams to S3 intact', async () => {
   const header = 'id,value\n';
   const rows = Buffer.alloc(12 * 1024 * 1024, '1,2\n');
   const body = Buffer.concat([Buffer.from(header), rows]);
-  const big = createApp({ ...env, config: { ...env.config, upload: { maxBytes: 20 * 1024 * 1024 } } });
+  const big = createApp({ ...env, config: { ...env.config, upload: { maxBytes: 20 * 1024 * 1024 } }, limiters: { upload: pass, read: pass } });
   const res = await request(big).post('/api/v1/uploads').attach('file', body, { filename: 'big.csv', contentType: 'text/csv' });
   assert.equal(res.status, 202, JSON.stringify(res.body));
   const job = await env.jobs.get(res.body.data.jobId);
@@ -57,7 +58,7 @@ test('multipart path: a 12 MiB upload streams to S3 intact', async () => {
 
 test('queue failure after real S3 upload leaves object + enqueue_failed job', async () => {
   const brokenQueue = { publish: async () => { throw new Error('simulated SQS outage'); } };
-  const broken = createApp({ ...env, queue: brokenQueue });
+  const broken = createApp({ ...env, queue: brokenQueue, limiters: { upload: pass, read: pass } });
   const res = await request(broken).post('/api/v1/uploads').attach('file', 'tests/fixtures/orders.json', { contentType: 'application/json' });
   assert.equal(res.status, 503);
   const jobId = /Job ([0-9a-f-]{36})/.exec(res.body.error.message)[1];

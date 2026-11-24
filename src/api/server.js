@@ -5,6 +5,7 @@ import { createS3Client, createS3Service } from '../services/s3.service.js';
 import { createSqsClient, createSqsService } from '../services/sqs.service.js';
 import { createJobService } from '../services/job.service.js';
 import { createApp } from './app.js';
+import { createRateLimiters } from './middleware/rate-limit.js';
 
 const config = loadConfig();
 const logger = createLogger({ service: 'api', level: config.logLevel });
@@ -16,6 +17,7 @@ const app = createApp({
   s3: createS3Service({ client: createS3Client(config), bucket: config.s3.bucket }),
   queue: createSqsService({ client: createSqsClient(config), queueUrl: config.sqs.queueUrl, visibilityTimeoutSeconds: config.sqs.visibilityTimeoutSeconds }),
   jobs: createJobService({ redis, config }),
+  limiters: createRateLimiters({ redis, config, logger }),
 });
 
 const server = app.listen(config.port, () => logger.info('api.started', { port: config.port }));

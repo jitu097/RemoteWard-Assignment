@@ -4,7 +4,12 @@ import request from 'supertest';
 import { createApp } from '../../src/api/app.js';
 import { createLogger } from '../../src/utils/logger.js';
 
-const app = createApp({ config: { trustProxy: 0 }, logger: createLogger({ service: 'test', level: 'error', write: () => {} }) });
+const pass = (req, res, next) => next();
+const app = createApp({
+  config: { trustProxy: 0 },
+  logger: createLogger({ service: 'test', level: 'error', write: () => {} }),
+  limiters: { upload: pass, read: pass },
+});
 
 test('GET /health', async () => {
   const res = await request(app).get('/health');

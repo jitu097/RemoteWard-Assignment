@@ -36,7 +36,8 @@ function fakes({ s3Fail, queueFail, createFail } = {}) {
     async getResult(id) { return state.results.get(id) ?? null; },
     async markEnqueueFailed(id, error) { Object.assign(state.jobs.get(id), { status: 'enqueue_failed', error }); },
   };
-  return { state, app: createApp({ config, logger, s3, queue, jobs }) };
+  const pass = (req, res, next) => next(); // rate limiting is covered by the Redis-backed integration test
+  return { state, app: createApp({ config, logger, s3, queue, jobs, limiters: { upload: pass, read: pass } }) };
 }
 
 const upload = (app, content, filename, type) =>
