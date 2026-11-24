@@ -60,3 +60,18 @@ export async function setupEnv(overrides = {}) {
 }
 
 export { S3Client, SQSClient };
+
+/** Real Redis only (no AWS endpoint needed). Keys use random job ids, so tests never collide. */
+export async function setupRedis(overrides = {}) {
+  const config = loadConfig({
+    AWS_REGION: 'us-east-1',
+    S3_BUCKET: 'unused',
+    SQS_QUEUE_URL: 'http://unused/q',
+    SQS_DLQ_URL: 'http://unused/dlq',
+    REDIS_URL: process.env.REDIS_URL ?? defaults.REDIS_URL,
+    ...overrides,
+  });
+  const logger = createLogger({ service: 'it', level: 'error', write: () => {} });
+  const redis = createRedis({ url: config.redis.url, logger });
+  return { config, logger, redis, jobs: createJobService({ redis, config }), close: () => redis.quit() };
+}

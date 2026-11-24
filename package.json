@@ -5,7 +5,7 @@
   "scripts": {
     "test": "node --test \"tests/unit/**/*.test.js\"",
     "start:api": "node src/api/server.js",
-    "start:worker": "node src/worker/consumer.js",
+    "start:worker": "node src/worker/main.js",
     "lint": "eslint .",
     "test:integration": "node --test --test-concurrency=1 \"tests/integration/**/*.test.js\"",
     "setup:local": "node scripts/setup-local.js"
