@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  labels: { app: worker }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: worker }
+  template:
+    metadata:
+      labels: { app: worker }
+    spec:
+      restartPolicy: Always
+      # Must exceed WORKER_SHUTDOWN_TIMEOUT_MS (30 s) so in-flight jobs can finish before SIGKILL.
+      terminationGracePeriodSeconds: 45
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: worker
+          image: remoteward-worker:1.0.0
+          imagePullPolicy: IfNotPresent # image is loaded into minikube with `minikube image load`
+          ports:
+            - { name: health, containerPort: 8080 }
+          envFrom:
+            - configMapRef: { name: worker-config }
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom: { secretKeyRef: { name: aws-credentials, key: AWS_ACCESS_KEY_ID } }
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom: { secretKeyRef: { name: aws-credentials, key: AWS_SECRET_ACCESS_KEY } }
+          # Liveness only checks the process and its poll loop. It never checks Redis or AWS, so a
+          # dependency outage does not cause restarts; the worker retries internally with backoff.
+          livenessProbe:
+            httpGet: { path: /healthz, port: health }
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet: { path: /readyz, port: health }
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 384Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
