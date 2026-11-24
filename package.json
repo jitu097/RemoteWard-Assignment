@@ -4,11 +4,12 @@
   "description": "Event-driven file ingestion pipeline: Express -> S3 -> SQS -> worker -> Redis",
   "scripts": {
     "test": "node --test \"tests/unit/**/*.test.js\"",
-    "start:api": "node src/api/server.js",
-    "start:worker": "node src/worker/main.js",
+    "start:api": "node --env-file-if-exists=.env src/api/server.js",
+    "start:worker": "node --env-file-if-exists=.env src/worker/main.js",
     "lint": "eslint .",
     "test:integration": "node --test --test-concurrency=1 \"tests/integration/**/*.test.js\"",
-    "setup:local": "node scripts/setup-local.js"
+    "setup:local": "node --env-file-if-exists=.env scripts/setup-local.js",
+    "requeue": "node --env-file-if-exists=.env scripts/requeue-job.js"
   },
   "repository": {
     "type": "git",

@@ -1,8 +1,8 @@
 // Shared setup for integration tests. They talk to a REAL Redis and an S3/SQS endpoint taken from the
 // environment. With the default .env.example values that endpoint is the local moto emulator, NOT real AWS.
 import { randomUUID } from 'node:crypto';
-import { S3Client, CreateBucketCommand } from '@aws-sdk/client-s3';
-import { SQSClient, CreateQueueCommand, PurgeQueueCommand } from '@aws-sdk/client-sqs';
+import { CreateBucketCommand } from '@aws-sdk/client-s3';
+import { CreateQueueCommand, PurgeQueueCommand } from '@aws-sdk/client-sqs';
 import { loadConfig } from '../../src/config/env.js';
 import { createLogger } from '../../src/utils/logger.js';
 import { createRedis } from '../../src/services/redis.service.js';
@@ -59,7 +59,6 @@ export async function setupEnv(overrides = {}) {
   };
 }
 
-export { S3Client, SQSClient };
 
 /** Real Redis only (no AWS endpoint needed). Keys use random job ids, so tests never collide. */
 export async function setupRedis(overrides = {}) {
