@@ -1,0 +1,44 @@
+{
+  "name": "remoteward-data-pipeline",
+  "version": "1.0.0",
+  "description": "Event-driven file ingestion pipeline: Express -> S3 -> SQS -> worker -> Redis",
+  "scripts": {
+    "test": "node --test \"tests/unit/**/*.test.js\"",
+    "start:api": "node src/api/server.js",
+    "start:worker": "node src/worker/consumer.js",
+    "lint": "eslint .",
+    "test:integration": "node --test --test-concurrency=1 \"tests/integration/**/*.test.js\"",
+    "setup:local": "node scripts/setup-local.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jitu097/RemoteWard-Assignment.git"
+  },
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/jitu097/RemoteWard-Assignment/issues"
+  },
+  "homepage": "https://github.com/jitu097/RemoteWard-Assignment#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "private": "true",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1176.0",
+    "@aws-sdk/client-sqs": "^3.1176.0",
+    "@aws-sdk/lib-storage": "^3.1176.0",
+    "busboy": "^1.6.0",
+    "csv-parse": "^7.0.3",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.5",
+    "ioredis": "^6.1.0",
+    "rate-limit-redis": "^6.0.2",
+    "stream-json": "^3.9.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "supertest": "^7.3.2"
+  }
+}
